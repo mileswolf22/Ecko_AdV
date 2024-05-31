@@ -11,6 +11,7 @@ voz.hablar("¿Cual es tu peticion?")
 peticion = voz.transfromar_audio_en_texto()
 lista_peticion = peticion.split()
 resultado_comando, resultado_pagina = com.identificar_comando(lista_peticion)
+print(resultado_comando, resultado_pagina)
 
 if resultado_comando in com.comandos_apertura:
     voz.hablar(f"Abriendo {resultado_pagina}")
@@ -20,6 +21,7 @@ elif resultado_comando in com.comandos_agregar:
     voz.hablar("Comando agregar")
 
 elif resultado_comando in com.comandos_reproduccion:
-    if resultado_pagina == "youtube":
+    if resultado_pagina == "youtube" or resultado_pagina == "YouTube":
         peticion_result = com.eliminar_palabras(peticion)
         pywhatkit.playonyt(peticion_result)
+        voz.hablar(f"Reproduciendo {peticion_result}")
