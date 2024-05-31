@@ -1,6 +1,3 @@
-import re
-
-import pyttsx3
 import speech_recognition as sr
 import pywhatkit
 import yfinance as yf
@@ -8,58 +5,14 @@ import pyjokes
 import webbrowser
 import datetime
 import wikipedia
+from carpeta_contactos import contacto
+from hablar_voz import Voz_asistente
+from comandos import Comandos
 
+comand = Comandos()
+carp = contacto()
+voz = Voz_asistente()
 
-# Escuchar nuestro microfono y devolver el audio aparte
-def transfromar_audio_en_texto():
-    # Almacenar el recognizer en una variable
-    r = sr.Recognizer()
-    # Configurar el microfono
-    with sr.Microphone() as origen:
-        # Tiempo de espera
-        r.pause_threshold = 0.8
-
-        # Informar que comenzo la grabacion
-        print("Ya puedes hablar")
-
-        # Guardar lo que escuche como audio
-        audio = r.listen(origen)
-
-        try:
-            # Buscar en google
-            pedido = r.recognize_google(audio, language="es-mx")
-
-            # Prueba de ingreso
-            print("Dijiste: " + pedido)
-            return pedido
-
-        except sr.UnknownValueError:
-
-            print("Ups, no entendi")
-            return "Sigo esperando"
-        # En caso de no poder resovler el pedido
-        except sr.RequestError:
-            print("Ups, no hay servicio")
-            return "Sigo esperando"
-        # Error inesperado
-        except:
-            print("Ups, algo ha salido mal")
-            return "Sigo esperando"
-
-
-# Funcion para qu eel asistente pueda ser escuchado
-def hablar(mensaje):
-    # Encender el motor de pyttsx3
-    engine = pyttsx3.init()
-
-    # Pronunciar el mensaje
-    engine.say(mensaje)
-    engine.runAndWait()
-
-def confirmacion():
-    r = sr.Recognizer()
-    r.pause_threshold = 1
-    hablar("Listo ¿En que mas puedo apoyarte?")
 
 
 # Informar el dia de la semana
@@ -70,7 +23,6 @@ def pedir_dia():
 
     # Crear variable para el dia de la semana
     dia_semana = dia.weekday()
-
 
     # Dioccionario con nombres de dias
     calendario = {
@@ -83,23 +35,17 @@ def pedir_dia():
         6: 'Domingo'
     }
 
-    hablar(f'Hoy es {calendario[dia_semana]}')
+    voz.hablar(f'Hoy es {calendario[dia_semana]}')
+
 
 # Informar la hora
 def pedir_hora():
     hora = datetime.datetime.now()
-    hablar(f"La hora actual es {hora.hour} horas y {hora.minute} minutos con {hora.second} segundos")
+    voz.hablar(f"La hora actual es {hora.hour} horas y {hora.minute} minutos con {hora.second} segundos")
 
-comandos_shutdown = [
-    "sería todo",
-    "apágate",
-    "es todo",
-    "nada mas"
-]
 
 # Saludo inicial
 def saludo_inicial():
-
     # Crear variable con datos de hora
     hora = datetime.datetime.now()
     if hora.hour < 6 or hora.hour > 20:
@@ -109,7 +55,7 @@ def saludo_inicial():
     else:
         momento = 'Buenas tardes'
     # Decir saludo
-    hablar(f"{momento}, mi nombre es Ecko, tu asistente personal, ¿En que puedo ayudarte?")
+    voz.hablar(f"{momento}, mi nombre es Ecko, tu asistente personal, ¿En que puedo ayudarte?")
 
 
 def pedir_cosas():
@@ -121,68 +67,123 @@ def pedir_cosas():
     # Loop central
     while comenzar:
         # Activar micro y guardar el pedido en un string
-        pedido = transfromar_audio_en_texto().lower()
+        pedido = voz.transfromar_audio_en_texto().lower()
 
+        # Esta funcion es para repeti
+        if 'ecko' in pedido:
+            r = sr.Recognizer()
+            voz.hablar("Reiniciando")
+            r.pause_threshold = 0.8
+            saludo_inicial()
+            continue
+
+        # Abrir youtube
         if 'abrir youtube' in pedido:
-            hablar('Abriendo Yutub, un momento')
+            voz.hablar('Abriendo Yutub, un momento')
             webbrowser.open('https://www.youtube.com')
-            confirmacion()
+            voz.confirmacion()
             continue
+
+        # Reproduce video en youtube
+        if 'reproduce en youtube' in pedido:
+            pedido = pedido.replace('reproduce en youtube', '')
+            voz.hablar(f'Enseguida, reproduciendo {pedido} en yutub')
+            pywhatkit.playonyt(pedido)
+            voz.confirmacion()
+            continue
+
+        # Abrir navegador
         elif 'abrir navegador' in pedido:
-            hablar('Enseguida se abrira tu navegador')
+            voz.hablar('Enseguida se abrira tu navegador')
             webbrowser.open('https://www.google.com')
-            confirmacion()
+            voz.confirmacion()
             continue
+
+        # Dia
         elif 'qué día es hoy' in pedido:
-            hablar("Enseguida")
+            voz.hablar("Enseguida")
             pedir_dia()
-            confirmacion()
+            voz.confirmacion()
             continue
+
+        # Hora
         elif 'qué hora es' in pedido:
-            hablar("Por supuesto")
+            voz.hablar("Por supuesto")
             pedir_hora()
-            confirmacion()
+            voz.confirmacion()
             continue
+
+        # Busqueda en wikipedia
         elif 'busca en wikipedia' in pedido:
-            hablar("Un momento, buscare tu informacion")
+            voz.hablar("Un momento, buscare tu informacion")
             pedido = pedido.replace('busca en wikipedia', '')
-            wikipedia.set_lang('es') # Establece el lenguaje para buscar en español
+            wikipedia.set_lang('es')  # Establece el lenguaje para buscar en español
             resultado = wikipedia.summary(pedido, sentences=1)
-            hablar("He encontrado lo siguiente")
-            hablar(resultado)
-            hablar("¿Quieres que abra esta información en internet?")
-            confirmar_peticion = transfromar_audio_en_texto()
+            voz.hablar("He encontrado lo siguiente")
+            voz.hablar(resultado)
+            voz.hablar("¿Quieres que abra esta información en internet?")
+            confirmar_peticion = voz.transfromar_audio_en_texto()
             if "si" or "por favor" in confirmar_peticion:
-                hablar("Enseguida")
+                voz.hablar("Enseguida")
                 webbrowser.open(f"https://en.wikipedia.org/wiki/{pedido}")
             elif "no" in confirmar_peticion:
-                hablar("Entendido ¿En que mas puedo ayudarte?")
+                voz.hablar("Entendido ¿En que mas puedo ayudarte?")
 
-            confirmacion()
+            voz.confirmacion()
+
+        # Busqueda en internet
         elif 'busca en internet' in pedido:
-            hablar("Ya mismo estoy en eso")
+            voz.hablar("Ya mismo estoy en eso")
             pedido = pedido.replace('busca en internet', '')
             pywhatkit.search(pedido)
-            hablar("He encontrado lo siguiente")
-            confirmacion()
+            voz.hablar("He encontrado lo siguiente")
+            voz.confirmacion()
             continue
 
         # Break en el proyecto
-        elif pedido in comandos_shutdown:
-            hablar("Un placer, hasta luego")
+        elif pedido in comand.comandos_shutdown:
+            voz.hablar("Un placer, hasta luego")
             break
 
+        # Mandar mensaje de whatsapp a un contacto
+        elif 'manda' and 'mensaje' and 'whatsapp' in pedido:
+            voz.hablar("Indicame numero por numero el contacto a quien deseas mandarle un mensaje")
+            peticion_numero = voz.transfromar_audio_en_texto()
+            peticion_numero_conversion = "+52" + peticion_numero
+            voz.hablar("¿Cual sera el contenido del mensaje?")
+            mensaje = voz.transfromar_audio_en_texto()
 
+            pywhatkit.sendwhatmsg_instantly(peticion_numero_conversion, mensaje)
+            voz.hablar("El mensaje ha sido enviado")
+            voz.confirmacion()
+            continue
 
+        # Mandar mensaje de whatsapp a un grupo
+        elif 'manda' and 'mensaje' and 'grupo' in pedido:
+            voz.hablar("Por supuesto, ¿Cual es el nombre dle grupo?")
+            nombre_grupo = voz.transfromar_audio_en_texto()
+            voz.hablar("¿Cual sera el contenido del mensaje?")
+            contenido = voz.transfromar_audio_en_texto()
 
+            pywhatkit.sendwhatmsg_to_group_instantly(nombre_grupo, contenido)
+            voz.hablar("El mensaje ha sido enviado")
+            voz.confirmacion()
+            continue
 
+        elif 'agregar contacto' in pedido:
+            """hablar("Claro, ¿Cual sera el nombre del contacto?")
+            nombre = transfromar_audio_en_texto()
+            hablar("¿Cual es el numero del contacto?")
+            numero = transfromar_audio_en_texto()
 
+            carp.contactos[nombre] = numero"""
+            carp.agregar_contacto()
+
+        elif 'eliminar contacto' in pedido:
+            carp.eliminar_contacto()
+
+        elif 'mostrar contactos' in pedido:
+            carp.mostrar_contactos()
 
 
 pedir_cosas()
-
-
-
-
-
-
