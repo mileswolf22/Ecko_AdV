@@ -37,16 +37,46 @@ class Comandos:
         "poner"
     ]
 
+    comandos_busqueda = [
+        "buscar",
+        "busca",
+        "busques",
+        "búscame",
+        "investiga",
+        "investigues",
+        "investígame",
+        "revisa",
+        "revisar",
+        "revísame"
+        "Buscar",
+        "Busca",
+        "Busques",
+        "Búscame",
+        "Investiga",
+        "Investigues",
+        "Investígame",
+        "Revisa",
+        "Revisar",
+        "Revísame"
+    ]
+
     comandos_apertura_redes_sociales = {
         "youtube": "https://www.youtube.com/",
         "YouTube": "https://www.youtube.com/",
-        "wikipedia": "https://es.wikipedia.org/",
-        "google": "https://www.google.com.mx/",
         "x": "https://x.com/",
         "ekis": "https://x.com/",
         "equis": "https://x.com/",
         "tweeter": "https://x.com/",
+        "X": "https://x.com/",
         "facebook": "https://www.facebook.com/",
+        "Facebook": "https://www.facebook.com/",
+    }
+
+    comandos_apertura_buscadores = {
+        "google": "https://www.google.com/",
+        "wikipedia": "https://https://en.wikipedia.org/wiki/",
+        "google escolar": "https://scholar.google.com/",
+        "ciencia mundial": "https://worldwidescience.org/"
     }
 
     comandos_apertura_redes_videojuegos = {
@@ -59,9 +89,6 @@ class Comandos:
         "es todo",
         "nada mas"
     ]
-
-
-
 
     # Primero verificar cuales son los comandos que el usuario dijo
     def identificar_comando(self, lista):
@@ -78,20 +105,39 @@ class Comandos:
                 comando_ = elemento
             elif elemento in self.comandos_apertura_redes_sociales:
                 pagina = elemento
+            elif elemento in self.comandos_busqueda:
+                comando_ = elemento
+            elif elemento in self.comandos_apertura_buscadores:
+                pagina = elemento
 
         # Comandos identificados
         return comando_, pagina
 
     @staticmethod
-    def eliminar_palabras(peticion):
+    def eliminar_palabras_youtube(peticion):
         # Dividir la cadena en dos partes usando "youtube" como separador
-        partes = peticion.split("youtube", 1)
+        pedido = peticion.lower()
+        partes = pedido.split("youtube", 1)
 
         # Verificar si "youtube" fue encontrado y reconstruir la cadena a partir de la segunda parte
         if len(partes) > 1:
             nueva_peticion = partes[1].strip()  # Eliminar espacios en blanco iniciales y finales
         else:
             nueva_peticion = peticion  # Si "youtube" no está en la cadena, no hacemos nada
+
+        return nueva_peticion
+
+    @staticmethod
+    def eliminar_palabras(peticion, pagina):
+        # Dividir la cadena en dos partes usando "youtube" como separador
+        pedido = peticion.lower()
+        partes = pedido.split(pagina, 1)
+
+        # Verificar si "youtube" fue encontrado y reconstruir la cadena a partir de la segunda parte
+        if len(partes) > 1:
+            nueva_peticion = partes[1].strip()  # Eliminar espacios en blanco iniciales y finales
+        else:
+            nueva_peticion = peticion  # Si "pagina" no está en la cadena, no hacemos nada
 
         return nueva_peticion
 

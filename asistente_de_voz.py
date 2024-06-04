@@ -4,15 +4,17 @@ import yfinance as yf
 import pyjokes
 import webbrowser
 import datetime
-import wikipedia
 from carpeta_contactos import contacto
 from hablar_voz import Voz_asistente
 from comandos import Comandos
+from youtube import Youtube
+from buscadores import Buscador
 
 comand = Comandos()
 carp = contacto()
 voz = Voz_asistente()
-
+yt = Youtube()
+wiki = Buscador()
 
 
 # Informar el dia de la semana
@@ -68,6 +70,7 @@ def pedir_cosas():
     while comenzar:
         # Activar micro y guardar el pedido en un string
         pedido = voz.transfromar_audio_en_texto().lower()
+        pedido_avanzado = comand.identificar_comando(pedido.split())
 
         # Esta funcion es para repeti
         if 'ecko' in pedido:
@@ -78,19 +81,13 @@ def pedir_cosas():
             continue
 
         # Abrir youtube
-        if 'abrir youtube' in pedido:
-            voz.hablar('Abriendo Yutub, un momento')
-            webbrowser.open('https://www.youtube.com')
-            voz.confirmacion()
+        if 'youtube' in pedido:
+            yt.abrir_youtube(pedido)
+            if comand.comandos_busqueda and 'youtube' in pedido:
+                voz.hablar("Buscando")
+                yt.busqueda_youtube(pedido)
             continue
 
-        # Reproduce video en youtube
-        if 'reproduce en youtube' in pedido:
-            pedido = pedido.replace('reproduce en youtube', '')
-            voz.hablar(f'Enseguida, reproduciendo {pedido} en yutub')
-            pywhatkit.playonyt(pedido)
-            voz.confirmacion()
-            continue
 
         # Abrir navegador
         elif 'abrir navegador' in pedido:
@@ -114,24 +111,15 @@ def pedir_cosas():
             continue
 
         # Busqueda en wikipedia
-        elif 'busca en wikipedia' in pedido:
-            voz.hablar("Un momento, buscare tu informacion")
-            pedido = pedido.replace('busca en wikipedia', '')
-            wikipedia.set_lang('es')  # Establece el lenguaje para buscar en español
-            resultado = wikipedia.summary(pedido, sentences=1)
-            voz.hablar("He encontrado lo siguiente")
-            voz.hablar(resultado)
-            voz.hablar("¿Quieres que abra esta información en internet?")
-            confirmar_peticion = voz.transfromar_audio_en_texto()
-            if "si" or "por favor" in confirmar_peticion:
-                voz.hablar("Enseguida")
-                webbrowser.open(f"https://en.wikipedia.org/wiki/{pedido}")
-            elif "no" in confirmar_peticion:
-                voz.hablar("Entendido ¿En que mas puedo ayudarte?")
-
-            voz.confirmacion()
+        elif 'wikipedia' in pedido:
+            wiki.busqueda_wikipedia(pedido)
 
         # Busqueda en internet
+        elif 'google' or 'escolar' or 'ciencia mundial' in pedido:
+            wiki.abrir_busqueda(pedido)
+            pass
+
+            # Busqueda en internet
         elif 'busca en internet' in pedido:
             voz.hablar("Ya mismo estoy en eso")
             pedido = pedido.replace('busca en internet', '')
@@ -157,6 +145,7 @@ def pedir_cosas():
             voz.hablar("El mensaje ha sido enviado")
             voz.confirmacion()
             continue
+
 
         # Mandar mensaje de whatsapp a un grupo
         elif 'manda' and 'mensaje' and 'grupo' in pedido:

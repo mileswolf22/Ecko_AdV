@@ -45,7 +45,8 @@ class Voz_asistente:
                 return "Sigo esperando"
 
     # Funcion para qu eel asistente pueda ser escuchado
-    def hablar(self, mensaje):
+    @staticmethod
+    def hablar(mensaje):
         # Encender el motor de pyttsx3h
         engine = pyttsx3.init()
 
@@ -56,4 +57,4 @@ class Voz_asistente:
     def confirmacion(self):
         r = sr.Recognizer()
         r.pause_threshold = 1
-        self.hablar("Listo ¿En que mas puedo apoyarte?")
+        self.hablar("¿En que mas puedo apoyarte?")

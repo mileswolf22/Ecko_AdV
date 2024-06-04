@@ -1,27 +1,20 @@
-import webbrowser
 
-import pywhatkit
 
-from comandos import Comandos
-from hablar_voz import Voz_asistente
-voz = Voz_asistente()
-com = Comandos()
+# ************************************ NO BORRAR **************************************************
 
-voz.hablar("¿Cual es tu peticion?")
-peticion = voz.transfromar_audio_en_texto()
-lista_peticion = peticion.split()
-resultado_comando, resultado_pagina = com.identificar_comando(lista_peticion)
-print(resultado_comando, resultado_pagina)
+"""# Reproduce video en youtube
+        if 'reproduce en youtube' in pedido:
+            pedido = pedido.replace('reproduce en youtube', '')
+            voz.hablar(f'Enseguida, reproduciendo {pedido} en yutub')
+            pywhatkit.playonyt(pedido)
+            voz.confirmacion()
+            continue"""
 
-if resultado_comando in com.comandos_apertura:
-    voz.hablar(f"Abriendo {resultado_pagina}")
-    webbrowser.open(com.comandos_apertura_redes_sociales[resultado_pagina])
-
-elif resultado_comando in com.comandos_agregar:
-    voz.hablar("Comando agregar")
-
-elif resultado_comando in com.comandos_reproduccion:
-    if resultado_pagina == "youtube" or resultado_pagina == "YouTube":
-        peticion_result = com.eliminar_palabras(peticion)
-        pywhatkit.playonyt(peticion_result)
-        voz.hablar(f"Reproduciendo {peticion_result}")
+# Busqueda en internet
+"""elif 'busca en internet' in pedido:
+            voz.hablar("Ya mismo estoy en eso")
+            pedido = pedido.replace('busca en internet', '')
+            pywhatkit.search(pedido)
+            voz.hablar("He encontrado lo siguiente")
+            voz.confirmacion()
+            continue"""
